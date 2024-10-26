@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "patent-search-stream"
+version = "0.1.0"
+description = ""
+authors = ["강재호 <greennuri@gmail.com>"]
+license = "mit"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.3"
+streamlit = "^1.39.0"
+langchain = "^0.3.4"
+langchain-community = "^0.3.3"
+langchain-openai = "^0.2.3"
+requests = "^2.32.3"
+plotly = "^5.24.1"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.13.0"
+black = "^24.10.0"
+pre-commit = "^4.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
