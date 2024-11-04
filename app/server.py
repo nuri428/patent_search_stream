@@ -2,7 +2,8 @@ import streamlit as st
 
 from streamlit_chat import message
 # from services.patent.api import react_agent_executor
-from services.simple_langgraph.graph import app
+# from services.simple_langgraph.graph import app
+from services.simple_langgraph2.graph import enter_chain
 from langchain_core.messages import HumanMessage
 import os
 import uuid
@@ -40,11 +41,12 @@ def generate_response(prompt_input):
     # total_history = "\n".join(history_contents)
     # config = {"configurable": {"thread_id": str(st.session_state.session_id)}}    
     # print(total_history)
-    res =  app.invoke({
-                "messages":
-                    [HumanMessage(content=prompt_input)],
-                "sender": "user",
-            })
+    # res =  app.invoke({
+    #             "messages":
+    #                 [HumanMessage(content=prompt_input)],
+    #             "sender": "user",
+    #         })
+    res = enter_chain.invoke(prompt_input)
     return res['messages']
 # User-provided prompt
 if prompt := st.chat_input():
