@@ -1375,18 +1375,18 @@ typing-extensions = ">=4.7"
 
 [[package]]
 name = "langchain-experimental"
-version = "0.3.2"
+version = "0.3.3"
 description = "Building applications with LLMs through composability"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "langchain_experimental-0.3.2-py3-none-any.whl", hash = "sha256:b6a26f2a05e056a27ad30535ed306a6b9d8cc2e3c0326d15030d11b6e7505dbb"},
-    {file = "langchain_experimental-0.3.2.tar.gz", hash = "sha256:d41cc28c46f58616d18a1230595929f80a58d1982c4053dc3afe7f1c03f22426"},
+    {file = "langchain_experimental-0.3.3-py3-none-any.whl", hash = "sha256:da01aafc162631475f306ca368ecae74d5becd93b8039bddb6315e755e274580"},
+    {file = "langchain_experimental-0.3.3.tar.gz", hash = "sha256:6bbcdcd084581432ef4b5d732294a59d75a858ede1714b50a5b79bcfe31fa306"},
 ]
 
 [package.dependencies]
 langchain-community = ">=0.3.0,<0.4.0"
-langchain-core = ">=0.3.6,<0.4.0"
+langchain-core = ">=0.3.15,<0.4.0"
 
 [[package]]
 name = "langchain-openai"
@@ -1863,13 +1863,13 @@ files = [
 
 [[package]]
 name = "narwhals"
-version = "1.12.1"
+version = "1.13.1"
 description = "Extremely lightweight compatibility layer between dataframe libraries"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "narwhals-1.12.1-py3-none-any.whl", hash = "sha256:e251cb5fe4cabdcabb847d359f5de2b81df773df47e46f858fd5570c936919c4"},
-    {file = "narwhals-1.12.1.tar.gz", hash = "sha256:65ff0d1e8b509df8b52b395e8d5fe96751a68657bdabf0f3057a970ec2cd1809"},
+    {file = "narwhals-1.13.1-py3-none-any.whl", hash = "sha256:7c860fd309d83b221c6257640da1c9c45ea187654c8c77d1daebb352adac86c7"},
+    {file = "narwhals-1.13.1.tar.gz", hash = "sha256:01aa4f5432abccd365686375eed677b597c0f62112ec27ccd0f14c3bf4f47c6a"},
 ]
 
 [package.extras]
