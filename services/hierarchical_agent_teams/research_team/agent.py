@@ -1,13 +1,14 @@
 import functools
 import operator
 
-from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_core.messages import BaseMessage
 from langchain_openai.chat_models import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from typing import Annotated, List, TypedDict
 from services.hierarchical_agent_teams.common import agent_node, create_team_supervisor
 # from services.hierarchical_agent_teams.research_team.tools import tavily_tool, scrape_webpages
-from services.patent_search.tools import kirpis_tools
+# from services.patent_search.tools import kirpis_tools
+# from services.patent.api.patent_class import KiprisAPITool
 # ResearchTeam graph state
 class ResearchTeamState(TypedDict):
     # A message is added after each team member finishes
