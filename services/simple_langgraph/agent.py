@@ -13,7 +13,6 @@ from services.simple_langgraph.tool import python_repl_tool
 from services.patent.api.patent_class import KiprisAPITool, KiprisAPIWraper
 from langchain.tools.render import format_tool_to_openai_function
 from langgraph.prebuilt.tool_executor import ToolExecutor, ToolInvocation
-from langchain_core.output_parsers import JsonOutputFunctionsParser
 
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_ENDPOINT"] = st.secrets["LANGCHAIN"]["endpoint"]
@@ -21,7 +20,6 @@ os.environ["LANGCHAIN_API_KEY"] = st.secrets["LANGCHAIN"]["api_key"]
 os.environ["LANGCHAIN_PROJECT"] = st.secrets["LANGCHAIN"]["project"]
 os.environ["LANGSMITH_API_KEY"] = st.secrets["LANGCHAIN"]["api_key"]
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI"]["api_key"]
-from icecream import ic
 filterwarnings("ignore")
 
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
@@ -42,44 +40,6 @@ def agent_node(state, agent, name):
         "messages": [result],
         "sender": name,
     }
-def create_team_supervisor(llm: ChatOpenAI, system_prompt, members) -> str:
-    """An LLM-based router."""
-    options = ["FINISH"] + members
-    function_def = {
-        "name": "route",
-        "description": "Select the next role.",
-        "parameters": {
-            "title": "routeSchema",
-            "type": "object",
-            "properties": {
-                "next": {
-                    "title": "Next",
-                    "anyOf": [
-                        {"enum": options},
-                    ],
-                },
-            },
-            "required": ["next"],
-        },
-    }
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            MessagesPlaceholder(variable_name="messages"),
-            (
-                "system",
-                "Given the conversation above, who should act next?"
-                " Or should we FINISH? Select one of: {options}",
-            ),
-        ]
-    ).partial(options=str(options), team_members=", ".join(members))
-    return (
-        prompt
-        | trimmer
-        | llm.bind_functions(functions=[function_def], function_call="route")
-        | JsonOutputFunctionsParser()
-    )
-    
 
 def create_agent(llm, tools, system_message: str):
     # 에이전트를 생성합니다.
