@@ -3,7 +3,7 @@ import pandas as pd
 import typing as t
 import json
 from langchain_core.tools import Tool, StructuredTool
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from services.patent.api.prompt import Patent_Search_Prompt, Applicant_Search_Prompt
 from services.patent.api.util import get_response, get_nested_key_value
 from icecream import ic
@@ -107,25 +107,48 @@ class KiprisAPI:
         return pd.DataFrame(patents)
 
 
+# class Patent_Search_Args(BaseModel):
+#     query:str
+#     patent:bool
+#     utility:bool
+#     lastvalue:str
+#     docs_start:int
+#     docs_count:int
+#     desc_sort:bool
+#     sort_spec:str
+
+# class Applicant_Search_Args(BaseModel):
+#     applicant:str
+#     docs_start:int
+#     docs_count:int
+#     patent:bool
+#     utility:bool
+#     lastvalue:str
+#     sort_spec:str
+#     desc_sort:bool
+from pydantic import BaseModel, Field
+from typing import Optional
+
 class Patent_Search_Args(BaseModel):
-    query:str
-    patent:bool
-    utility:bool
-    lastvalue:str
-    docs_start:int
-    docs_count:int
-    desc_sort:bool
-    sort_spec:str
+    query: str = Field("", description="Search query, default is an empty string. if this is empty, then i should ask user to input query.")
+    patent: bool = Field(True, description="Include patents, default is True")
+    utility: bool = Field(False, description="Include utility models, default is False")
+    lastvalue:  t.Optional[str] = Field("", description="Patent registration status; leave empty for all, (A, C, F, G, I, J, R, or empty)")
+    docs_start: int = Field(0, description="Start index for documents, default is 0")
+    docs_count: int = Field(10, description="Number of documents to return, default is 10")
+    desc_sort: bool = Field(True, description="Sort in descending order, default is True")
+    sort_spec: str = Field("date", description="Field to sort by; default is 'date' (e.g., date, relevance)")
+
 
 class Applicant_Search_Args(BaseModel):
-    applicant:str
-    docs_start:int
-    docs_count:int
-    patent:bool
-    utility:bool
-    lastvalue:str
-    sort_spec:str
-    desc_sort:bool
+    applicant: str = Field(..., description="Applicant name is required")
+    docs_start: int = Field(1, description="Start index for documents, default is 1")
+    docs_count: int = Field(10, description="Number of documents to return, default is 10, range is 1-30")
+    patent: bool = Field(True, description="Include patents, default is True")
+    utility: bool = Field(True, description="Include utility models, default is True")
+    lastvalue:  t.Optional[str] = Field("", description="Patent registration status; leave empty for all, (A, C, F, G, I, J, R, or empty)")
+    sort_spec: str = Field("AD", description="Sort field; default is AD")
+    desc_sort: bool = Field(False, description="Sort in descending order; default is False")
 
 class KiprisAPIWraper(KiprisAPI):
     def search_wrapper(self, params:str):
@@ -149,7 +172,7 @@ class KiprisAPIWraper(KiprisAPI):
             result.drop(columns=["DrawingPath", "ThumbnailPath"], inplace=True)
             return result.to_json(orient="records", force_ascii=False)
         
-    def applicantNameSearchInfo_wrapper2(self, applicant:str, docs_start:int, docs_count:int, patent:bool, utility:bool, lastvalue:str, sort_spec:str, desc_sort:bool):
+    def applicantNameSearchInfo_wrapper2(self, applicant:str, docs_start:int=1, docs_count:int=10, patent:bool=True, utility:bool=False, lastvalue:str="", sort_spec:str="AD", desc_sort:bool=False):
         result = self.applicantNameSearchInfo(applicant, docs_start, docs_count, patent, utility, lastvalue, sort_spec, desc_sort)
         if result.empty:
             return json.dumps({"msg":"no result"})
@@ -171,7 +194,7 @@ class KiprisAPITool:
     def tools(self) -> t.List[Tool]:
         tools = []
         tools.append(StructuredTool.from_function(
-            self._kipris_api.search_wrapper2,
+            self._kipris_api.search_wrapper,
             name="search_patent",
             description=Patent_Search_Prompt,
             args_schema=Patent_Search_Args,
@@ -179,7 +202,7 @@ class KiprisAPITool:
             verbose=True
         ))
         tools.append(StructuredTool.from_function(
-            self._kipris_api.applicantNameSearchInfo_wrapper2,
+            self._kipris_api.applicantNameSearchInfo_wrapper,
             name="search_applicant",
             description=Applicant_Search_Prompt,
             args_schema=Applicant_Search_Args,
