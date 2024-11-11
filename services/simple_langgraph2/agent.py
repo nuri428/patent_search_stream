@@ -36,12 +36,6 @@ trimmer = trim_messages(
     include_system=True,
 )
 
-# def agent_node(state, agent, name):
-#     result = agent.invoke(state)
-#     return {
-#         "messages": [HumanMessage(content=result["messages"][-1].content, name=name)]
-#     }
-
 def create_team_supervisor(llm: ChatOpenAI, system_prompt, members) -> str:
     """An LLM-based router."""
     options = ["FINISH"] + members
@@ -86,7 +80,7 @@ def kipris_node (state):
     messages = state["messages"]
 
     result = kipris_react_agent_executor.invoke({"input":messages})
-    # print(result)
+    # result = kipris_agent_executor.invoke({"input":messages})
     return {
         "messages": [HumanMessage(content=result['output'], name='patent_search')]
     }
@@ -107,8 +101,12 @@ supervisor = create_team_supervisor(llm,
             data_scientist is specialized in data science tasks.
             Given the following user request, who should act next?
             Or should we FINISH?
+            if user request is not related to patent search or data science, respond with FINISH
+            if user request is want to search patent, respond with patent_search and finish
+            if user request is search patent and analysis data, respond with patent_search and data_scientist and finish
+            if user request is want to do data science, respond with data_scientist and finish
             Each worker will respond perform a task and repond with their results and status. 
-            when finished, respond with FINISH
+            when finished, respond with FINISH and you have to provide the result.
             """, 
             ["patent_search", "data_scientist"])
 

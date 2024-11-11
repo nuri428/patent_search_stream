@@ -3,10 +3,12 @@ import streamlit as st
 from streamlit_chat import message
 # from services.patent.api import react_agent_executor
 # from services.simple_langgraph.graph import app
-from services.simple_langgraph2.graph import enter_chain
-from langchain_core.messages import HumanMessage
+# from services.simple_langgraph2.graph import research_chain
+from services.patent.api.simplachain import call_with_tool
 import os
 import uuid
+from langchain_teddynote import logging
+logging.langsmith('patent_search')
 # from icecream import ic
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_ENDPOINT"] = st.secrets["LANGCHAIN"]["endpoint"]
@@ -46,8 +48,10 @@ def generate_response(prompt_input):
     #                 [HumanMessage(content=prompt_input)],
     #             "sender": "user",
     #         })
-    res = enter_chain.invoke(prompt_input)
-    return res['messages']
+    # res = research_chain.invoke(prompt_input)
+    # return res['messages']
+    res = call_with_tool(prompt_input)
+    return res
 # User-provided prompt
 if prompt := st.chat_input():
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -59,12 +63,12 @@ if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             response = generate_response(prompt)
-            display_msg = ''
-            if len(response) > 0:
-                display_msg = response[-1].content
-            else:
-                display_msg = response.content
-            st.markdown(display_msg)
+            # display_msg = ''
+            # if len(response) > 0:
+            #     display_msg = response[-1].content
+            # else:
+            #     display_msg = response.content
+            st.markdown(response)
 
-    message = {"role": "assistant", "content": display_msg}
+    message = {"role": "assistant", "content": response}
     st.session_state.messages.append(message)

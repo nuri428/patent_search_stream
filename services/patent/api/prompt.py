@@ -19,13 +19,13 @@ You have access to the following tools:
 {tools}
 Use the following format:
 Question: the input question you must answer
-Thought: you should always think about what to do but you are just a patent search assistant.
+Thought: you should always think about what to do but
 Action: the action to take, should be one of [{tool_names}].
 Action Input: the input to the action
 Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation can repeat N times)
 Thought: I am just a patent search assistant.
-		if i get all data from korean patent data, then i should pass data to data scientist.
+		if i get all data from korean patent data, then finish.
 Final Answer:
 
 Begin!
@@ -129,7 +129,7 @@ Fields:
 	•	docs_count (int): Docs to return (1-30), default 30.
 	•	docs_start (int): Start index, default 1.
 	•	sort_spec (str): Sort field (e.g., AD, PD), default AD.
-	•	desc_sort (bool): Sort descending, default False.
+	•	desc_sort (bool): Sort descending, default True. when True, sort by descending order.it mean latest date first.
 
 Output:
 List of patent details including Applicant, ApplicationDate, ApplicationNumber, Abstract, DrawingPath, ThumbnailPath, SerialNumber, InventionName, InternationalPatentClassificationNumber, OpeningDate, OpeningNumber, PublicNumber, PublicDate, RegistrationDate, RegistrationNumber, RegistrationStatus.
