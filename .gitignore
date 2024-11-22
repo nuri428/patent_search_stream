@@ -169,4 +169,5 @@ cython_debug/
 @SynoResource/**
 .DS_Store
 .DS_Store?
-**/@eaDir/.DS_Store@SynoResource
+**/@eaDir/.DS_Store@SynoResource/.DS_Store
+.DS_Store
