@@ -1,3 +1,17 @@
+import sys
+from pathlib import Path
+import os
+
+# 절대 경로로 지정
+PACKAGE_DIR = Path(__file__).resolve().parent.parent / "pkgs" / "kipris_tools"
+sys.path.insert(0, str(PACKAGE_DIR))
+
+# 디버깅을 위한 출력
+print("PYTHONPATH:", os.environ['PYTHONPATH'])
+print("sys.path:", sys.path)
+
+import langchain_kipris_tools
+
 import streamlit as st
 
 from streamlit_chat import message
@@ -15,7 +29,7 @@ os.environ["LANGCHAIN_ENDPOINT"] = st.secrets["LANGCHAIN"]["endpoint"]
 os.environ["LANGCHAIN_API_KEY"] = st.secrets["LANGCHAIN"]["api_key"]
 os.environ["LANGCHAIN_PROJECT"] = st.secrets["LANGCHAIN"]["project"]
 os.environ["LANGSMITH_API_KEY"] = st.secrets["LANGCHAIN"]["api_key"]
-
+os.environ["TAVILY_API_KEY"] = st.secrets["TAVILY"]["api_key"]
 st.set_page_config(page_title="🤗💬 patent_chatbot", layout="wide")
 if "session_id" not in st.session_state.keys():
     st.session_state.session_id = str(uuid.uuid4())
@@ -29,29 +43,16 @@ for message in st.session_state.messages:
         st.write(message["content"])
 
 # Function for generating LLM response
-def generate_response(prompt_input):
-    if st.session_state.session_id is None:
-        return {"content": []}
-    # history_list = st.session_state.messages
-    # history_contents = []
-    # for message in history_list:
-    #     history_contents.append(message['content'])
-    #     print(message['content'])
-
-    # history_contents.append(prompt_input)
-    # return react_agent_executor.invoke({"input": prompt_input})
-    # total_history = "\n".join(history_contents)
-    # config = {"configurable": {"thread_id": str(st.session_state.session_id)}}    
-    # print(total_history)
-    # res =  app.invoke({
-    #             "messages":
-    #                 [HumanMessage(content=prompt_input)],
-    #             "sender": "user",
-    #         })
-    # res = research_chain.invoke(prompt_input)
-    # return res['messages']
-    res = call_with_tool(prompt_input)
-    return res
+def generate_response(prompt_input: str) -> str:
+    if not prompt_input:
+        return "검색어를 입력해주세요."
+    
+    try:
+        res = call_with_tool(prompt_input)
+        return res
+    except Exception as e:
+        print(f"Error in generate_response: {str(e)}")
+        return f"오류가 발생했습니다: {str(e)}"
 # User-provided prompt
 if prompt := st.chat_input():
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -62,12 +63,7 @@ if prompt := st.chat_input():
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            response = generate_response(prompt)
-            # display_msg = ''
-            # if len(response) > 0:
-            #     display_msg = response[-1].content
-            # else:
-            #     display_msg = response.content
+            response = generate_response(prompt)          
             st.markdown(response)
 
     message = {"role": "assistant", "content": response}

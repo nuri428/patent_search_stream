@@ -6,7 +6,7 @@ import operator
 from langgraph.graph import StateGraph, START, END
 from services.hierarchical_agent_teams.research_team.graph import research_chain
 from services.hierarchical_agent_teams.docwriter_team.graph import authoring_chain
-
+from services.hierarchical_agent_teams.kor_patent_search_team.graph import patent_search_chain
 llm = ChatOpenAI(model="gpt-4o", temperature=0.0)
 
 supervisor_node = create_team_supervisor(
@@ -16,7 +16,7 @@ supervisor_node = create_team_supervisor(
     " respond with the worker to act next. Each worker will perform a"
     " task and respond with their results and status. When finished,"
     " respond with FINISH.",
-    ["ResearchTeam", "PaperWritingTeam"],
+    ["ResearchTeam", "PaperWritingTeam", "PatentSearchTeam"],
 )
 
 class State(TypedDict):
@@ -39,18 +39,21 @@ super_graph.add_node("ResearchTeam", get_last_message | research_chain | join_gr
 super_graph.add_node(
     "PaperWritingTeam", get_last_message | authoring_chain | join_graph
 )
+super_graph.add_node("PatentSearchTeam", get_last_message | patent_search_chain | join_graph)
 super_graph.add_node("supervisor", supervisor_node)
 
 # Define the graph connections, which controls how the logic
 # propagates through the program
 super_graph.add_edge("ResearchTeam", "supervisor")
 super_graph.add_edge("PaperWritingTeam", "supervisor")
+super_graph.add_edge("PatentSearchTeam", "supervisor")
 super_graph.add_conditional_edges(
     "supervisor",
     lambda x: x["next"],
     {
         "PaperWritingTeam": "PaperWritingTeam",
         "ResearchTeam": "ResearchTeam",
+        "PatentSearchTeam": "PatentSearchTeam",
         "FINISH": END,
     },
 )

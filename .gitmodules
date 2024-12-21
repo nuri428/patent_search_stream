@@ -1,0 +1,3 @@
+[submodule "pkgs/kipris_tools"]
+	path = pkgs/kipris_tools
+	url = https://github.com/nuri428/langchain_kipris_tools.git

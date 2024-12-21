@@ -11,7 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}${pathSeparator}${env:PYTHONPATH}"
+                "PYTHONPATH": "${workspaceFolder}${pathSeparator}${env:PYTHONPATH}:${workspaceFolder}${pathSeparator}${workspaceFolder}/pkgs/kipris_tools/langchain_kipris_tools"
             }
         }
     ]

@@ -1,4 +1,4 @@
-from typing import Annotated, List
+import typing as t
 
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -8,7 +8,7 @@ tavily_tool = TavilySearchResults(max_results=5)
 
 
 @tool
-def scrape_webpages(urls: List[str]) -> str:
+def scrape_webpages(urls: t.List[str]) -> str:
     """Use requests and bs4 to scrape the provided web pages for detailed information."""
     loader = WebBaseLoader(urls)
     docs = loader.load()
