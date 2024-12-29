@@ -4,14 +4,14 @@ from services.patent.simple_graph.prompt import reseved_system_msg
 from langchain.schema import HumanMessage
 
 # from langfuse.decorators import langfuse_context, observe
-# from langfuse.callback import CallbackHandler
+from langfuse.callback import CallbackHandler
 from icecream import ic
 import asyncio
 ic.disable()
 
 class PatentSearcherGraph():
     def __init__(self):
-        # self.langfuse_handler = CallbackHandler()
+        self.langfuse_handler = CallbackHandler()
         self.graph = StateGraph(AgentState)
         self.build_graph()
         self.compile()
@@ -47,25 +47,29 @@ class PatentSearcherGraph():
         # langfuse_handler = langfuse_context.get_current_langchain_handler()
         return self.app.invoke(
             {"messages": [reseved_system_msg, HumanMessage(content=message)]},
-            # config={"callbacks": [self.langfuse_handler]}
+            config={"callbacks": [self.langfuse_handler]}
             )   
     
     
     async def run_stream(self, message: str):
         try:
             async for event in self.app.astream_events({
-                "messages": [reseved_system_msg, HumanMessage(content=message)]
-            }, stream_mode="messages", version="v2"):
+                "messages": [reseved_system_msg, HumanMessage(content=message)]                
+            }, stream_mode="messages", version="v2", 
+            config={"callbacks": [self.langfuse_handler]}):
                 event_type = event["event"]
                 if "data" in event:
                     if "chunk" in event["data"]:
                         if event_type == "on_chat_model_stream":
                             yield event["data"]["chunk"].content
-                    
+            self.langfuse_handler.flush()        
         except Exception as e:
             ic(f"Streaming error: {str(e)}")
             # 스트리밍 중 발생할 수 있는 예외 처리
             raise Exception(f"스트리밍 처리 중 예외 발생: {str(e)}")   
+    
+    def __del__(self):
+        self.langfuse_handler.close()
 
 async def main():
     graph = PatentSearcherGraph()
