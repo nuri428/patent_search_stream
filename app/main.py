@@ -1,18 +1,17 @@
-import sys
-from pathlib import Path
-import os
-import streamlit as st
-from streamlit_chat import message
-from services.patent.api.simplachain import call_with_tool_stream
-import uuid
-from langchain_teddynote import logging
 import asyncio
-from typing import AsyncGenerator
+import os
+import sys
+import uuid
+from pathlib import Path
 
+import streamlit as st
+from langchain_teddynote import logging
+# from services.patent.api.simplachain import call_with_tool_stream
+from services.patent.simple_graph.graph import PatentSearcherGraph
+from langchain.schema import HumanMessage
 # 패키지 경로 설정
 PACKAGE_DIR = Path(__file__).resolve().parent.parent / "pkgs" / "kipris_tools"
 sys.path.insert(0, str(PACKAGE_DIR))
-import langchain_kipris_tools
 
 # LangSmith 설정
 logging.langsmith('patent_search')
@@ -31,6 +30,7 @@ st.set_page_config(page_title="🤗💬 patent_chatbot", layout="wide")
 
 class ChatProcessor:
     def __init__(self):
+        self.graph = PatentSearcherGraph()
         self.messages = st.session_state.messages
         
     def add_message(self, role: str, content: str):
@@ -61,15 +61,17 @@ class ChatProcessor:
         response_container = st.empty()
         full_response = []
         
-        async for chunk in call_with_tool_stream(prompt):
+        # 시스템 메시지 포함
+        async for chunk in self.graph.run_stream(prompt):
             full_response.append(chunk)
             response_container.write("".join(full_response))
-        
+            
         return "".join(full_response)
         
     async def _process_sync(self, prompt: str) -> str:
         """동기식 응답 처리"""
-        return await call_with_tool_stream(prompt).__anext__()
+        return await self.graph.invoke({"messages": [HumanMessage(content=prompt)]})
+        # return await call_with_tool_stream(prompt).__anext__()
 
 # Streamlit 앱 초기화
 if "session_id" not in st.session_state:
