@@ -61,8 +61,10 @@ class ChatProcessor:
         response_container = st.empty()
         full_response = []
         
-        # 시스템 메시지 포함
-        async for chunk in self.graph.run_stream(prompt):
+        # 시스템 메시지 
+        session_id = st.session_state.session_id
+        print(f"session_id: {session_id}")
+        async for chunk in self.graph.run_stream(prompt, session_id):
             full_response.append(chunk)
             response_container.write("".join(full_response))
             
